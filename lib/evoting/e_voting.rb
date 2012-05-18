@@ -5,15 +5,13 @@
 
 class EVoting
 
-  attr_accessor :scheme
+  attr_accessor :scheme, :q
 
   def initialize
-    p = 1849271
-    g = 7109
-    x = 1234
-    #p = 17
-    #g = 6
-    #x = 2
+    p = 23
+    g = 4
+    x = 3
+    @q = 11
     @scheme = Elgamal.new(p,g,x)
   end
 
@@ -77,27 +75,46 @@ class EVoting
     secret
   end
 
-  def compute_secret_shares(sec_mat, p)
-    n = sec_mat.size
-    t = sec_mat.first.size
+  def shamir_scheme(t,n)
+    cofs = coeffs
+    shares = []
+    (1..n).each do |r|
+      shares << value_at(cofs, r)
+    end   
+   
+  end
 
-    res_poly = Array.new(t,0)
+  private
 
-    t.times do |r|
-      n.times do |s|
-        res_poly[r]+=sec_mat[s][r]
-      end
-      res_poly[r] %=p
+  def value_at(cofs, r)
+    res = 0
+    cofs.each_with_index do |cof, ind|
+      res = res + cof*(r**ind) %
     end
+  end
 
-    f = Array.new(n,0)
-
-    n.times do |ss|
-      t.times do |spi|
-        f[ss]+=res_poly[spi]*((ss+1)**spi)
-      end
-      f[ss] %= p
-    end
-    f
+  end
+  def coeffs
+    cofs = [@scheme.x]
+    (1..t-2).each do|c|
+     cofs << rand(@q) 
+    end 
   end
 end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
